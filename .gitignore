@@ -1,0 +1,10 @@
+.next
+dist
+node_modules
+db
+generated
+.env.local
+uploads
+uploads_test
+.DS_Store
+schema.gql

@@ -1,0 +1,52 @@
+{
+  "name": "next-auth-prisma-stripe",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prisma:migrate:dev": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' dotenv -e .env.local -- prisma migrate dev",
+    "prisma:migrate:prod": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' dotenv -e .env.local -- prisma migrate deploy",
+    "prisma:generate": "dotenv -e .env.local -- prisma generate",
+    "prisma:seed": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' dotenv -e .env.local -- prisma db seed",
+    "stripe:dev": "stripe listen --forward-to  http://localhost:3000/api/stripe/webhook",
+    "docker:start": "docker-compose up -d",
+    "docker:stop": "docker-compose down"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.4.1",
+    "@heroicons/react": "^1.0.4",
+    "@next-auth/prisma-adapter": "^0.5.2-next.5",
+    "@prisma/client": "3.0.2",
+    "@stripe/stripe-js": "^1.17.1",
+    "babel-plugin-superjson-next": "^0.4.1",
+    "classnames": "^2.3.1",
+    "dotenv-cli": "^4.0.0",
+    "next": "11.1.2",
+    "next-auth": "4.0.0-beta.2",
+    "next-connect": "^0.10.2",
+    "nodemailer": "^6.6.3",
+    "prisma": "3.0.2",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "stripe": "^8.176.0",
+    "superjson": "^1.7.5",
+    "yup": "^0.32.9"
+  },
+  "devDependencies": {
+    "@types/react": "17.0.21",
+    "autoprefixer": "^10.3.4",
+    "eslint": "7.32.0",
+    "eslint-config-next": "11.1.2",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "postcss": "^8.3.6",
+    "tailwindcss": "^2.2.15",
+    "ts-node": "^10.2.1",
+    "typescript": "4.4.3"
+  }
+}

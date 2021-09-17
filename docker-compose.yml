@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  postgres:
+    container_name: dev_postgres_container
+    image: postgres:12.4
+    ports:
+      - 5666:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dev
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - ./db:/var/lib/postgresql/data/
+
+  maildev:
+    container_name: dev_maildev_container
+    image: djfarrelly/maildev
+    ports:
+      - '1080:80'
+      - '1025:25'
