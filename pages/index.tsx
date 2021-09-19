@@ -4,17 +4,14 @@ import Head from 'next/head';
 import Image from 'next/image';
 import nookies, { parseCookies } from 'nookies';
 
-// import { getSession, signIn, signOut, useSession } from 'next-auth/react';
+import { useAuth } from '@app/hooks';
 import { getStripe } from '@app/utils';
 import { getUserFromToken } from '@app/utils/ssr/passport';
 
 import styles from '../styles/Home.module.css';
 
 const Home: NextPage<{ user?: User }> = ({ user }) => {
-  // const { data: session, status } = useSession();
-
-  console.log('JWT', user);
-  console.log('Cookies', parseCookies());
+  const data = useAuth();
 
   const handleCreateCheckoutSession = async () => {
     const res = await fetch('/api/stripe/create-checkout-session', {
@@ -136,10 +133,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
-      user: user && {
-        id: user.id,
-        name: user.name,
-      },
+      user: JSON.stringify(user), // DateTime fields are throwing an error
+      jwt,
     },
   };
 };

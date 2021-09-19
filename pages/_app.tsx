@@ -1,16 +1,17 @@
 import '@app/styles/globals.css';
 
 import type { AppProps } from 'next/app';
-import { SessionProvider } from 'next-auth/react';
+
+import { AuthProvider } from '@app/hooks/useAuth';
 
 const App = ({
   Component,
-  pageProps: { session, ...otherProps },
+  pageProps: { user, jwt, ...otherProps },
 }: AppProps) => {
   return (
-    <SessionProvider session={session}>
+    <AuthProvider.Provider value={{ user: JSON.parse(user), jwt }}>
       <Component {...otherProps} />;
-    </SessionProvider>
+    </AuthProvider.Provider>
   );
 };
 
