@@ -1,10 +1,8 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
+import { NextApiResponse } from 'next';
 import { getSession } from 'next-auth/react';
-import { ErrorHandler, Middleware } from 'next-connect';
+import { Middleware } from 'next-connect';
 
 import { AppNextApiRequest } from '@app/types';
-import { prisma } from '@app/utils';
 
 const auth: Middleware<AppNextApiRequest, NextApiResponse> = async (
   req,

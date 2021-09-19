@@ -1,14 +1,20 @@
+import { User } from '@prisma/client';
 import type { GetServerSideProps, NextPage, NextPageContext } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import { getSession, signIn, signOut, useSession } from 'next-auth/react';
+import nookies, { parseCookies } from 'nookies';
 
+// import { getSession, signIn, signOut, useSession } from 'next-auth/react';
 import { getStripe } from '@app/utils';
+import { getUserFromToken } from '@app/utils/ssr/passport';
 
 import styles from '../styles/Home.module.css';
 
-const Home: NextPage = () => {
-  const { data: session, status } = useSession();
+const Home: NextPage<{ user?: User }> = ({ user }) => {
+  // const { data: session, status } = useSession();
+
+  console.log('JWT', user);
+  console.log('Cookies', parseCookies());
 
   const handleCreateCheckoutSession = async () => {
     const res = await fetch('/api/stripe/create-checkout-session', {
@@ -91,7 +97,7 @@ const Home: NextPage = () => {
           </a>
         </div>
 
-        {session!! ? (
+        {/* {session!! ? (
           <>
             <button onClick={() => signOut()}>Sign out</button>
             <button onClick={handleCreateCheckoutSession}>Buy</button>
@@ -99,7 +105,7 @@ const Home: NextPage = () => {
           </>
         ) : (
           <button onClick={() => signIn()}>Sign in</button>
-        )}
+        )} */}
       </main>
 
       <footer className={styles.footer}>
@@ -119,9 +125,21 @@ const Home: NextPage = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const cookies = nookies.get(context);
+
+  let user = null;
+  const jwt = cookies.jwt || null;
+
+  if (jwt) {
+    user = await getUserFromToken(jwt);
+  }
+
   return {
     props: {
-      session: await getSession(context),
+      user: user && {
+        id: user.id,
+        name: user.name,
+      },
     },
   };
 };

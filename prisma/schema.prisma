@@ -16,9 +16,13 @@ model User {
   email         String?   @unique
   emailVerified DateTime? @map(name: "email_verified")
   image         String?
-  customer      Customer?
+  password      String?
+  salt          String?
+
+  customer Customer?
 
   accounts      Account[]
+  accounts2     Account2[]
   sessions      Session[]
   subscriptions Subscription[]
 
@@ -27,8 +31,19 @@ model User {
   @@map(name: "users")
 }
 
+model Account2 {
+  id             String  @id @default(uuid())
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  provider       String
+  providerUserId String  @map(name: "provider_user_id")
+  accessToken    String? @map(name: "access_token")
+  refreshToken   String? @map(name: "refresh_token")
+}
+
 model Account {
   id                 String  @id @default(uuid())
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId             String
   type               String
   provider           String
@@ -43,7 +58,6 @@ model Account {
   oauth_token_secret String?
   oauth_token        String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map(name: "created_at")
   updatedAt DateTime @default(now()) @map(name: "updated_at")
@@ -106,7 +120,7 @@ model Product {
 
 model Price {
   id        String  @id @default(uuid())
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String  @map(name: "product_id")
 
   active        Boolean        @default(false)
@@ -122,7 +136,7 @@ model Price {
 
 model Subscription {
   id      String @id @default(uuid())
-  user    User   @relation(fields: [userId], references: [id])
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  String @map(name: "user_id")
   price   Price  @relation(fields: [priceId], references: [id])
   priceId String
@@ -137,9 +151,7 @@ model Subscription {
   cancel_at_period_end Boolean?
   canceled_at          DateTime?
 
-
   metadata Json?
-
 
   createdAt DateTime @default(now()) @map(name: "created_at")
   updatedAt DateTime @default(now()) @map(name: "updated_at")
