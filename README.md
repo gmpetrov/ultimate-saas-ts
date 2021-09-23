@@ -2,7 +2,7 @@
 
 *My template to quickstart a SAAS project*
 
->Stop loosing time implementing authentication and payment over and over again.  
+>Stop losing time implementing authentication and payment over and over again.  
 Focus on what brings value to your customers
 
 ## Demo
