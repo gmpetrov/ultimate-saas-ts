@@ -6,7 +6,7 @@ import { getSession } from 'next-auth/react';
 import React from 'react';
 
 import { Navbar } from '@app/components';
-import { prisma } from '@app/utils/ssr';
+import { prisma } from '@app/utils/server';
 
 type Props = {
   subscription: Subscription | null;

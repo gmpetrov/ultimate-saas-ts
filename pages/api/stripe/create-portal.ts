@@ -1,6 +1,6 @@
 import config from '@app/config';
-import { createAuthApiHandler, stripe } from '@app/utils/ssr';
-import { getCustomerId } from '@app/utils/ssr/stripe';
+import { createAuthApiHandler, stripe } from '@app/utils/server';
+import { getCustomerId } from '@app/utils/server/stripe';
 
 const handler = createAuthApiHandler();
 

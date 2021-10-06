@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 
 import config from '@app/config';
-import { prisma } from '@app/utils/ssr';
+import { prisma } from '@app/utils/server';
 
 const stripe = new Stripe(config.STRIPE_SECRET_KEY!, {
   apiVersion: '2020-08-27',

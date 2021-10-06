@@ -5,7 +5,7 @@ import EmailProvider from 'next-auth/providers/email';
 import GitHubProvider from 'next-auth/providers/github';
 
 import config from '@app/config';
-import { prisma } from '@app/utils/ssr';
+import { prisma } from '@app/utils/server';
 
 const options: NextAuthOptions = {
   providers: [

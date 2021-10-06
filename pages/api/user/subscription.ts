@@ -1,4 +1,4 @@
-import { createAuthApiHandler, prisma, stripe } from '@app/utils/ssr';
+import { createAuthApiHandler, prisma } from '@app/utils/server';
 
 const handler = createAuthApiHandler();
 

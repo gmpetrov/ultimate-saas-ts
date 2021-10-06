@@ -7,8 +7,8 @@ import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Footer, Navbar } from '@app/components';
-import { getStripe } from '@app/utils';
-import { prisma } from '@app/utils/ssr';
+import { getStripe } from '@app/utils/browser';
+import { prisma } from '@app/utils/server';
 
 type Props = {
   products: (Product & { prices: Price[] })[];
