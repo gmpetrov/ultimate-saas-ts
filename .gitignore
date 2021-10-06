@@ -7,4 +7,5 @@ generated
 uploads
 uploads_test
 .DS_Store
-schema.gql
+generated
+

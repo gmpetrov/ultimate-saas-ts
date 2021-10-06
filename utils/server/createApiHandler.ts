@@ -10,7 +10,7 @@ export const onError: ErrorHandler<NextApiRequest, NextApiResponse> = (
   res,
   next
 ) => {
-  console.log(err);
+  console.log('err', err);
   res.status(500).end(err.toString());
 };
 

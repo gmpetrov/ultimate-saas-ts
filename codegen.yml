@@ -1,0 +1,16 @@
+overwrite: true
+schema: 'schema.gql'
+documents: 
+  - 'components/**/*.{ts,tsx}'
+  - 'pages/**/*.{ts,tsx}'
+  - 'hooks/**/*.{ts,tsx}'
+generates:
+  generated/index.tsx:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-apollo'
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false

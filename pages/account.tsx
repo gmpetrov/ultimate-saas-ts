@@ -1,29 +1,34 @@
+import { useApolloClient } from '@apollo/client';
 import { ExclamationIcon } from '@heroicons/react/solid';
 import { Subscription } from '@prisma/client';
+import gql from 'graphql-tag';
 import type { GetServerSideProps, NextPage } from 'next';
 import Link from 'next/link';
-import { getSession } from 'next-auth/react';
 import React from 'react';
 
 import { Navbar } from '@app/components';
-import { prisma } from '@app/utils/server';
+import { RouteName } from '@app/types';
+import { getSession, prisma } from '@app/utils/server';
 
 type Props = {
   subscription: Subscription | null;
 };
 
+const createPortal = gql`
+  mutation CreatePortal {
+    createPortal
+  }
+`;
+
 const Page: NextPage<Props> = ({ subscription }) => {
+  const apollo = useApolloClient();
+
   const handleCreatePortal = async () => {
-    const res = await fetch('/api/stripe/create-portal', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
+    const res = await apollo.mutate({
+      mutation: createPortal,
     });
 
-    const data = await res.json();
-
-    const url = data.url;
+    const url = res?.data?.createPortal;
 
     window.location.assign(url);
   };
@@ -81,7 +86,7 @@ const Page: NextPage<Props> = ({ subscription }) => {
                       Change plan
                     </button>
                   ) : (
-                    <Link href="/">
+                    <Link href={RouteName.HOME} passHref>
                       <button
                         type="button"
                         className="inline-flex items-center px-4 py-2 font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
@@ -104,25 +109,29 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   context
 ) => {
   const session = await getSession(context);
-  const subscription = await prisma.subscription.findFirst({
-    where: {
-      userId: (session?.user as any)?.userId,
-      status: {
-        in: ['active', 'trialing'],
-      },
-    },
-    include: {
-      price: {
-        include: {
-          product: true,
+  let subscription = null;
+
+  if (!!session) {
+    subscription = await prisma.subscription.findFirst({
+      where: {
+        userId: session?.uid,
+        status: {
+          in: ['active', 'trialing'],
         },
       },
-    },
-  });
+      include: {
+        price: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+  }
 
   return {
     redirect: !session && {
-      destination: '/api/auth/signin',
+      destination: '/signin',
       permanent: false,
     },
     props: {

@@ -1,10 +1,11 @@
 import * as yup from 'yup';
 import { Asserts } from 'yup';
 
-import { isSSR } from '@app/utils';
+import { isSSR } from '@app/utils/common';
 
 const env = {
-  NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+  NEXT_PUBLIC_APP_URL:
+    process.env.VERCEL_URL || process.env.NEXT_PUBLIC_APP_URL,
   DATABASE_URL: process.env.DATABASE_URL,
   SECRET: process.env.SECRET,
 
@@ -17,13 +18,11 @@ const env = {
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
   GITHUB_ID: process.env.GITHUB_ID,
   GITHUB_SECRET: process.env.GITHUB_SECRET,
+  FIREBASE_SERVICE_ACCOUNT: process.env.FIREBASE_SERVICE_ACCOUNT,
 };
 
 const envSchema = yup.object({
-  NEXTAUTH_URL: yup.string().when({
-    is: () => isSSR(),
-    then: yup.string().required(),
-  }),
+  NEXT_PUBLIC_APP_URL: yup.string().required(),
   DATABASE_URL: yup.string().when({
     is: () => isSSR(),
     then: yup.string().required(),
@@ -54,6 +53,10 @@ const envSchema = yup.object({
     then: yup.string().required(),
   }),
   GITHUB_SECRET: yup.string().when({
+    is: () => isSSR(),
+    then: yup.string().required(),
+  }),
+  FIREBASE_SERVICE_ACCOUNT: yup.string().when({
     is: () => isSSR(),
     then: yup.string().required(),
   }),

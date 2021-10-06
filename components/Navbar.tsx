@@ -1,18 +1,18 @@
 import { Disclosure, Menu, Transition } from '@headlessui/react';
-import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/solid';
+import { MenuIcon, XIcon } from '@heroicons/react/solid';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { signOut, useSession } from 'next-auth/react';
 import React, { Fragment } from 'react';
 
-const navigation = [
-  { name: 'Pricings', href: '/', current: true },
-  { name: 'Account', href: '/', current: false },
-];
+import { useAuth } from '@app/hooks';
+import { RouteName } from '@app/types';
 
-const Component = () => {
-  const { data: session, status } = useSession();
+import Authenticated from './Authenticated';
+import NotAuthenticated from './NotAuthenticated';
+
+const Navbar = () => {
+  const { user, signOut } = useAuth();
   const router = useRouter();
 
   return (
@@ -45,7 +45,7 @@ const Component = () => {
                   />
                 </div>
                 <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                  <Link href="/">
+                  <Link href={RouteName.HOME}>
                     <a
                       className={classNames(
                         'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium',
@@ -60,7 +60,7 @@ const Component = () => {
                     </a>
                   </Link>
 
-                  <Link href="/account">
+                  <Link href={RouteName.ACCOUNT}>
                     <a
                       className={classNames(
                         'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium',
@@ -78,7 +78,12 @@ const Component = () => {
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 {/* Profile dropdown */}
-                {status === 'authenticated' ? (
+
+                <Authenticated
+                  loader={
+                    <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
+                  }
+                >
                   <Menu as="div" className="relative ml-3">
                     <div>
                       <Menu.Button className="flex text-sm bg-white rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -86,7 +91,7 @@ const Component = () => {
                         <img
                           className="w-8 h-8 rounded-full"
                           src={
-                            session?.user?.image ||
+                            user?.photoURL ||
                             'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
                           }
                           alt=""
@@ -105,7 +110,7 @@ const Component = () => {
                       <Menu.Items className="absolute right-0 w-48 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <Menu.Item>
                           {({ active }) => (
-                            <Link href="/account">
+                            <Link href={RouteName.ACCOUNT}>
                               <a
                                 className={classNames(
                                   active ? 'bg-gray-100' : '',
@@ -133,11 +138,13 @@ const Component = () => {
                       </Menu.Items>
                     </Transition>
                   </Menu>
-                ) : (
-                  <Link href="/api/auth/signin">
+                </Authenticated>
+
+                <NotAuthenticated>
+                  <Link href={RouteName.SIGN_IN}>
                     <a>Sign in</a>
                   </Link>
-                )}
+                </NotAuthenticated>
               </div>
             </div>
           </div>
@@ -146,12 +153,12 @@ const Component = () => {
             <div className="pt-2 pb-4 space-y-1">
               {/* Current: "bg-indigo-50 border-indigo-500 text-indigo-700", Default: "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700" */}
 
-              <Link href="/">
+              <Link href={RouteName.HOME}>
                 <a className="block py-2 pl-3 pr-4 text-base font-medium text-indigo-700 border-l-4 border-indigo-500 bg-indigo-50">
                   Pricings
                 </a>
               </Link>
-              <Link href="/account">
+              <Link href={RouteName.ACCOUNT}>
                 <a className="block py-2 pl-3 pr-4 text-base font-medium text-gray-500 border-l-4 border-transparent hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700">
                   Account
                 </a>
@@ -164,4 +171,4 @@ const Component = () => {
   );
 };
 
-export default Component;
+export default Navbar;

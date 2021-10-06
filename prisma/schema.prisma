@@ -1,137 +1,79 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator typegraphql {
+  provider           = "typegraphql-prisma"
+  output             = "../generated/type-graphql"
+  emitTranspiledCode = "true"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
   id            String        @id @default(cuid())
-  name          String?
   email         String?       @unique
-  emailVerified DateTime?     @map(name: "email_verified")
-  image         String?
+  emailVerified Boolean?      @map("email_verified")
+  picture       String?
+  role          Role          @default(user)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @default(now()) @map("updated_at")
   customer      Customer?
   subscription  Subscription?
 
-  accounts Account[]
-  sessions Session[]
-
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-  @@map(name: "users")
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String  @map(name: "user_id")
-  type              String
-  provider          String
-  providerAccountId String  @map(name: "provider_account_id")
-  refreshToken      String? @map(name: "refresh_token")
-  access_token      String?
-  token_type        String?
-  expiresAt         Int?    @map(name: "expires_at")
-  scope             String?
-  idToken           String? @map(name: "id_token")
-  sessionState      String? @map(name: "session_state")
-  oauthTokenSecret  String? @map(name: "oauth_token_secret")
-  oauthToken        String? @map(name: "oauth_token")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-
-  @@unique([provider, providerAccountId])
-  @@map(name: "accounts")
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique @map(name: "session_token")
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       String   @map(name: "user_id")
-  expires      DateTime
-
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-
-  @@map(name: "sessions")
-}
-
-model VerificationToken {
-  id         String   @id @default(cuid())
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-
-  @@unique([identifier, token])
-  @@map(name: "verification_requests")
+  @@map("users")
 }
 
 model Customer {
-  id     String @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @map(name: "user_id")
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-  @@map(name: "customers")
+  @@map("customers")
 }
 
 model Product {
-  id          String  @id @default(cuid())
-  active      Boolean @default(false)
+  id          String   @id @default(cuid())
+  active      Boolean  @default(false)
   name        String
   description String?
   image       String?
   metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+  prices      Price[]
 
-  prices Price[]
-
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-  @@map(name: "products")
+  @@map("products")
 }
 
 model Price {
-  id        String  @id @default(cuid())
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId String  @map(name: "product_id")
-
+  id                String         @id @default(cuid())
+  productId         String         @map("product_id")
   active            Boolean        @default(false)
   currency          String
   interval          PriceInterval?
-  unitAmount        Int?           @map(name: "unit_amount")
+  unitAmount        Int?           @map("unit_amount")
   interval_count    Int?
   trial_period_days Int?
   type              PriceType?
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @default(now()) @map("updated_at")
+  product           Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
   subscriptions     Subscription[]
 
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-  @@map(name: "prices")
+  @@map("prices")
 }
 
 model Subscription {
-  id      String @id @default(cuid())
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId  String @map(name: "user_id")
-  price   Price  @relation(fields: [priceId], references: [id])
-  priceId String
-
-  status SubscriptionStatus
-
+  id                   String             @id @default(cuid())
+  userId               String             @unique @map("user_id")
+  priceId              String
+  status               SubscriptionStatus
   start_date           DateTime?
   ended_at             DateTime?
   trial_end            DateTime?
@@ -139,14 +81,13 @@ model Subscription {
   cancel_at            DateTime?
   cancel_at_period_end Boolean?
   canceled_at          DateTime?
+  metadata             Json?
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @default(now()) @map("updated_at")
+  price                Price              @relation(fields: [priceId], references: [id])
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-
-  metadata Json?
-
-
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-  @@map(name: "subscriptions")
+  @@map("subscriptions")
 }
 
 enum PriceType {
@@ -169,4 +110,9 @@ enum PriceInterval {
   month
   week
   year
+}
+
+enum Role {
+  admin
+  user
 }

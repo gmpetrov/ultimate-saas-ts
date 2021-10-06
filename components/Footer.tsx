@@ -54,7 +54,7 @@ const Footer = () => {
           ))}
         </div>
         <p className="mt-8 text-base text-center text-gray-400">
-          &copy; 2021 Workflow, Inc. All rights reserved.
+          &copy; {new Date().getFullYear()} Workflow, Inc. All rights reserved.
         </p>
       </div>
     </footer>

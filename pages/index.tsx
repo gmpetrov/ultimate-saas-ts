@@ -1,68 +1,79 @@
 import { CheckIcon } from '@heroicons/react/solid';
-import { Price, PriceInterval, Product, Subscription } from '@prisma/client';
+import { Price, PriceInterval, Subscription } from '@prisma/client';
 import classNames from 'classnames';
-import type { GetStaticProps, NextPage } from 'next';
+import gql from 'graphql-tag';
+import type {
+  GetStaticPropsContext,
+  InferGetServerSidePropsType,
+  NextPage,
+} from 'next';
 import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Footer, Navbar } from '@app/components';
+import { useCreateCheckoutSessionMutation, useMeQuery } from '@app/generated';
+import { useAuth } from '@app/hooks';
 import { getStripe } from '@app/utils/browser';
 import { prisma } from '@app/utils/server';
 
-type Props = {
-  products: (Product & { prices: Price[] })[];
-};
+gql`
+  query Me {
+    me {
+      subscription {
+        id
+        priceId
+      }
+    }
+  }
 
-const Page: NextPage<Props> = ({ products }) => {
-  const [subscription, setSubscription] = useState<Subscription>();
-  const { status } = useSession();
+  mutation CreateCheckoutSession(
+    $createCheckoutSessionData: CreateCheckoutSessionInput!
+  ) {
+    createCheckoutSession(data: $createCheckoutSessionData)
+  }
+`;
+
+const Page: NextPage<InferGetServerSidePropsType<typeof getStaticProps>> = ({
+  products = [],
+}) => {
+  const [createCheckoutSessionMutation] = useCreateCheckoutSessionMutation({});
+
+  const { user, isAuthLoading } = useAuth();
   const router = useRouter();
+  const { data, loading, error } = useMeQuery({
+    skip: !user,
+  });
+
+  const subscription = data?.me.subscription;
 
   const [billingInterval, setBillingInterval] =
     useState<PriceInterval>('month');
 
-  useEffect(() => {
-    (async () => {
-      if (status === 'authenticated') {
-        const res = await fetch('/api/user/subscription');
-
-        const data = await res.json();
-
-        if (data.subscription) {
-          setSubscription(data.subscription);
-        }
-      }
-    })();
-  }, [status]);
-
   const handlePricingClick = useCallback(
     async (priceId: string) => {
-      if (status !== 'authenticated') {
-        return router.push('/api/auth/signin');
+      if (!user) {
+        return router.push('/signin');
       }
 
       if (subscription) {
         return router.push('/account');
       }
 
-      const res = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
+      const { data } = await createCheckoutSessionMutation({
+        variables: {
+          createCheckoutSessionData: {
+            price: priceId,
+          },
         },
-        body: JSON.stringify({
-          price: priceId,
-        }),
       });
 
-      const data = await res.json();
+      const sessionId = data?.createCheckoutSession!;
 
       const stripe = await getStripe();
 
-      stripe?.redirectToCheckout({ sessionId: data.sessionId });
+      stripe?.redirectToCheckout({ sessionId });
     },
-    [status, router, subscription]
+    [user, router, subscription, createCheckoutSessionMutation]
   );
 
   return (
@@ -193,7 +204,7 @@ const Page: NextPage<Props> = ({ products }) => {
   );
 };
 
-export const getStaticProps: GetStaticProps<Props> = async (context) => {
+export const getStaticProps = async (context: GetStaticPropsContext) => {
   const products = await prisma?.product.findMany({
     where: {
       active: true,
