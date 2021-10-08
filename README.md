@@ -58,7 +58,7 @@ https://stripe.com/docs/webhooks/test
 
 stripe login
 
-stripe listen --forward-to  http://localhost:3000/api/stripe-webhooks
+stripe listen --forward-to  http://localhost:3000/api/stripe/webhook
 
 # start server
 yarn dev
