@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "build:ci": "yarn prisma:generate && yarn prisma:migrate:prod && yarn build",
     "prisma:migrate:dev": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' dotenv -e .env.local -- prisma migrate dev",
     "prisma:migrate:prod": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' dotenv -e .env.local -- prisma migrate deploy",
     "prisma:generate": "dotenv -e .env.local -- prisma generate",
