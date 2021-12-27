@@ -3,12 +3,17 @@ import { NextApiHandler } from 'next';
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import GitHubProvider from 'next-auth/providers/github';
+import FacebookProvider from 'next-auth/providers/facebook';
 
 import config from '@app/config';
 import { prisma } from '@app/utils/ssr';
 
 const options: NextAuthOptions = {
   providers: [
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_ID,
+      clientSecret: process.env.FACEBOOK_SECRET,
+    }),
     GitHubProvider({
       clientId: config.GITHUB_ID,
       clientSecret: config.GITHUB_SECRET,
