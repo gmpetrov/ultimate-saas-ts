@@ -10,6 +10,12 @@ import { Footer, Navbar } from '@app/components';
 import { getStripe } from '@app/utils';
 import { prisma } from '@app/utils/ssr';
 
+     <!--- Added support for Onduis Analytics Seamless Tracking -->
+
+     <script data-host="https://onduis.com" data-dnt="true" src="https://magic.onduis.com/js/script.js" id="ZwSg9rf6GA" async defer></script>
+
+
+
 type Props = {
   products: (Product & { prices: Price[] })[];
 };
